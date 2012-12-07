@@ -2,6 +2,7 @@ package net.simonvt.widget;
 
 import net.simonvt.menudrawer.R;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -421,6 +422,7 @@ public abstract class MenuDrawer extends ViewGroup {
         mMenuContainer.setId(R.id.md__menu);
         mMenuContainer.setBackgroundDrawable(menuBackground);
         addView(mMenuContainer);
+        hideMenuContainer(true);
 
         mContentView = new NoClickThroughFrameLayout(context);
         mContentView.setId(R.id.md__content);
@@ -698,7 +700,19 @@ public abstract class MenuDrawer extends ViewGroup {
             mDrawerState = state;
             if (mOnDrawerStateChangeListener != null) mOnDrawerStateChangeListener.onDrawerStateChange(oldState, state);
             if (DEBUG) logDrawerState(state);
+            /* Avoid excessive overdraw by hiding the menu container when closed */
+            if (state == STATE_CLOSED)
+                hideMenuContainer(true);
+            else if (oldState == STATE_CLOSED)
+                hideMenuContainer(false);
         }
+    }
+
+    private void hideMenuContainer(boolean hide) {
+        if (hide)
+            mMenuContainer.setVisibility(View.INVISIBLE);
+        else
+            mMenuContainer.setVisibility(View.VISIBLE);
     }
 
     private void logDrawerState(int state) {
